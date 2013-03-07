@@ -68,8 +68,9 @@ Using git
 Disclaimer
 ----------
 
-Autoenv overrides ``cd``. If you already do this, invoke ``autoenv_init`` within your custom ``cd`` after sourcing ``activate.sh``.
+Unless you are using zsh as your shell, autoenv overrides ``cd``. If you already do this, invoke ``autoenv_init`` within your custom ``cd`` after sourcing ``activate.sh``.
 
+If you are using zsh as your shell, autoenv will use the ``chpwd_functions`` instead of overriding ``cd``. So even if you already override ``cd``, everything should still work fine.
 
 Testing
 -------
