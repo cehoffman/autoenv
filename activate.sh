@@ -38,6 +38,29 @@ autoenv_init()
     : $(( _file -= 1 ))
   done
 
+  _unfiles=( $(
+    builtin cd $OLDPWD &>/dev/null
+    while [[ "$PWD" != "/" && "$PWD" != "$home" ]]
+    do
+      _unfile="$PWD/.unenv"
+      if [[ -e "${_unfile}" ]]
+      then echo "${_unfile}"
+      fi
+      builtin cd .. &>/dev/null
+    done
+  ) )
+  echo unfiles=$_unfiles
+
+  _unfile=${#_unfiles[@]}
+  while (( _unfile > 0 ))
+  do
+    envfile=${_unfiles[_unfile-__array_offset]}
+    if [[ ! "$PWD" =~ "$(dirname $envfile)" ]] ; then
+      autoenv_check_authz_and_run "$envfile"
+    fi
+    : $(( _unfile -= 1 ))
+  done
+
   IFS=$defIFS
 }
 
