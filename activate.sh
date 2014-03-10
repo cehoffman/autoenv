@@ -14,21 +14,17 @@ autoenv_init()
   defIFS=$IFS
   IFS=$(echo -en "\n\b")
 
-  typeset target home _file
-  typeset -a _files
+  typeset target _file
+  typeset -a _files _unfiles
   target=$1
-  home="$(dirname $HOME)"
 
-  _files=( $(
-    while [[ "$PWD" != "/" && "$PWD" != "$home" ]]
-    do
-      _file="$PWD/$AUTOENV_ENV_FILENAME"
-      if [[ -e "${_file}" ]]
-      then echo "${_file}"
-      fi
-      builtin cd .. &>/dev/null
-    done
-  ) )
+  local root="$PWD"
+  while [ -n "$root" ]; do
+    if [ -e "${root}/.env" ]; then
+      _files=($_files "${root}/.env")
+    fi
+    root="${root%/*}"
+  done
 
   _file=${#_files[@]}
   while (( _file > 0 ))
@@ -38,17 +34,13 @@ autoenv_init()
     : $(( _file -= 1 ))
   done
 
-  _unfiles=( $(
-    builtin cd $OLDPWD &>/dev/null
-    while [[ "$PWD" != "/" && "$PWD" != "$home" ]]
-    do
-      _unfile="$PWD/.unenv"
-      if [[ -e "${_unfile}" ]]
-      then echo "${_unfile}"
-      fi
-      builtin cd .. &>/dev/null
-    done
-  ) )
+  root="$OLDPWD"
+  while [ -n "$root" ]; do
+    if [ -e "${root}/.unenv" ]; then
+      _unfiles=("${root}/.unenv" $_unfiles)
+    fi
+    root="${root%/*}"
+  done
 
   _unfile=${#_unfiles[@]}
   while (( _unfile > 0 ))
