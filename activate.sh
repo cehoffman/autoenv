@@ -18,22 +18,6 @@ autoenv_init()
   typeset -a _files _unfiles
   target=$1
 
-  local root="$PWD"
-  while [ -n "$root" ]; do
-    if [ -e "${root}/.env" ]; then
-      _files=($_files "${root}/.env")
-    fi
-    root="${root%/*}"
-  done
-
-  _file=${#_files[@]}
-  while (( _file > 0 ))
-  do
-    envfile=${_files[_file-__array_offset]}
-    autoenv_check_authz_and_run "$envfile"
-    : $(( _file -= 1 ))
-  done
-
   root="$OLDPWD"
   while [ -n "$root" ]; do
     if [ -e "${root}/.unenv" ]; then
@@ -50,6 +34,22 @@ autoenv_init()
       autoenv_check_authz_and_run "$envfile"
     fi
     : $(( _unfile -= 1 ))
+  done
+
+  local root="$PWD"
+  while [ -n "$root" ]; do
+    if [ -e "${root}/.env" ]; then
+      _files=($_files "${root}/.env")
+    fi
+    root="${root%/*}"
+  done
+
+  _file=${#_files[@]}
+  while (( _file > 0 ))
+  do
+    envfile=${_files[_file-__array_offset]}
+    autoenv_check_authz_and_run "$envfile"
+    : $(( _file -= 1 ))
   done
 
   IFS=$defIFS
