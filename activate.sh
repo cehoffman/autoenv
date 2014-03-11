@@ -9,6 +9,38 @@ then __array_offset=0
 else __array_offset=1
 fi
 
+autoenv_common_path()
+{
+    if [ $# -ne 2 ]
+    then
+        return 2
+    fi
+
+    # Remove repeated slashes
+    for param
+    do
+        param="$(printf %s. "$1" | tr -s "/")"
+        set -- "$@" "${param%.}"
+        shift
+    done
+
+    common_path="$1"
+    shift
+
+    for param
+    do
+        while case "${param%/}/" in "${common_path%/}/"*) false;; esac; do
+            new_common_path="${common_path%/*}"
+            if [ "$new_common_path" = "$common_path" ]
+            then
+                return 1 # Dead end
+            fi
+            common_path="$new_common_path"
+        done
+    done
+    printf %s "$common_path"
+}
+
 autoenv_init()
 {
   defIFS=$IFS
@@ -44,11 +76,14 @@ autoenv_init()
     root="${root%/*}"
   done
 
+  local common="$(autoenv_common_path "$OLDPWD" "$PWD")"
   _file=${#_files[@]}
   while (( _file > 0 ))
   do
     envfile=${_files[_file-__array_offset]}
-    autoenv_check_authz_and_run "$envfile"
+    if (( ${#common} < ${#$(dirname "$envfile")} )); then
+      autoenv_check_authz_and_run "$envfile"
+    fi
     : $(( _file -= 1 ))
   done
 
