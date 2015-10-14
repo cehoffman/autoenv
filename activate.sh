@@ -3,6 +3,9 @@ AUTOENV_AUTH_FILE=~/.autoenv_authorized
 if [ -z "$AUTOENV_ENV_FILENAME" ]; then
     AUTOENV_ENV_FILENAME=.env
 fi
+if [ -z "$AUTOENV_UNENV_FILENAME" ]; then
+    AUTOENV_UNENV_FILENAME=.unenv
+fi
 
 if [[ -n "${ZSH_VERSION}" ]]
 then __array_offset=0
@@ -52,8 +55,11 @@ autoenv_init()
 
   root="$OLDPWD"
   while [ -n "$root" ]; do
-    if [ -e "${root}/.unenv" ]; then
-      _unfiles=("${root}/.unenv" $_unfiles)
+    if [ -e "${root}/${AUTOENV_UNENV_FILENAME}" ]; then
+      _unfiles=($_files "${root}/${AUTOENV_UNENV_FILENAME}")
+    fi
+    if [ -e "${root}/${AUTOENV_ENV_FILENAME}" ]; then
+      _files=($_files "${root}/${AUTOENV_ENV_FILENAME}")
     fi
     root="${root%/*}"
   done
@@ -66,14 +72,6 @@ autoenv_init()
       autoenv_check_authz_and_run "$envfile"
     fi
     : $(( _unfile -= 1 ))
-  done
-
-  local root="$PWD"
-  while [ -n "$root" ]; do
-    if [ -e "${root}/.env" ]; then
-      _files=($_files "${root}/.env")
-    fi
-    root="${root%/*}"
   done
 
   local common="$(autoenv_common_path "$OLDPWD" "$PWD")"
