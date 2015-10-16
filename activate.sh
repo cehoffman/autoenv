@@ -58,9 +58,6 @@ autoenv_init()
     if [ -e "${root}/${AUTOENV_UNENV_FILENAME}" ]; then
       _unfiles=($_files "${root}/${AUTOENV_UNENV_FILENAME}")
     fi
-    if [ -e "${root}/${AUTOENV_ENV_FILENAME}" ]; then
-      _files=($_files "${root}/${AUTOENV_ENV_FILENAME}")
-    fi
     root="${root%/*}"
   done
 
@@ -73,6 +70,15 @@ autoenv_init()
     fi
     : $(( _unfile -= 1 ))
   done
+
+  root="$PWD"
+  while [ -n "$root" ]; do
+    if [ -e "${root}/${AUTOENV_ENV_FILENAME}" ]; then
+      _files=($_files "${root}/${AUTOENV_ENV_FILENAME}")
+    fi
+    root="${root%/*}"
+  done
+  echo ENV $_files
 
   local common="$(autoenv_common_path "$OLDPWD" "$PWD")"
   _file=${#_files[@]}
