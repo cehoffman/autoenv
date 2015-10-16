@@ -178,7 +178,11 @@ autoenv_source() {
   typeset allexport
   allexport=$(set +o | grep allexport)
   set -a
+  [[ -z "$ZSH_VERSION" ]] || chpwd_functions=("${(@)chpwd_functions:#autoenv_init}")
+  pushd $(dirname "$1")
   source "$1"
+  popd
+  [[ -z "$ZSH_VERSION" ]] || chpwd_functions=(autoenv_init $chpwd_functions)
   eval "$allexport"
 }
 
