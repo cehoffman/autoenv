@@ -78,9 +78,13 @@ autoenv_init()
     fi
     root="${root%/*}"
   done
-  echo ENV $_files
 
-  local common="$(autoenv_common_path "$OLDPWD" "$PWD")"
+  local common=""
+  # Force evaulation of env files  if OLDPWD == PWD, e.g. on a new shell at PWD
+  if [ "$OLDPWD" != "$PWD" ]; then
+    common="$(autoenv_common_path "$OLDPWD" "$PWD")"
+  fi
+
   _file=${#_files[@]}
   while (( _file > 0 ))
   do
