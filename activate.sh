@@ -56,7 +56,7 @@ autoenv_init()
   root="$OLDPWD"
   while [ -n "$root" ]; do
     if [ -e "${root}/${AUTOENV_UNENV_FILENAME}" ]; then
-      _unfiles=($_files "${root}/${AUTOENV_UNENV_FILENAME}")
+      _unfiles=($_unfiles "${root}/${AUTOENV_UNENV_FILENAME}")
     fi
     root="${root%/*}"
   done
